@@ -33,6 +33,8 @@ export const Login: React.FC<LoginProps> = ({ onFormSwitch, onLoginSuccess }) =>
     });
   };
 
+  
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -43,6 +45,7 @@ export const Login: React.FC<LoginProps> = ({ onFormSwitch, onLoginSuccess }) =>
         <button type="submit">Login</button>
       </form>
       <button onClick={() => onFormSwitch('register')}>Don't have an account? Register here.</button>
+      <button onClick={() => onFormSwitch('home')}>HomePage</button>
     </div>
   );
 };

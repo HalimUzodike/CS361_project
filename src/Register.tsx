@@ -27,6 +27,7 @@ export const Register: React.FC<RegisterProps> = ({ onFormSwitch }) => {
         <button type="submit">Register</button>
       </form>
       <button onClick={() => onFormSwitch('login')}>Already have an account? Login here.</button>
+      <button onClick={() => onFormSwitch('home')}>HomePage</button>
     </div>
   );
 };

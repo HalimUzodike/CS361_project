@@ -3,39 +3,65 @@ import './App.css';
 import { Login } from './Login';
 import { Register } from './Register';
 import HomePage from './HomePage'; // Import your HomePage component
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignInAlt, faArrowLeft, faUndo } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
-  // const [currentForm, setCurrentForm] = useState("login"); // "login", "register", or "home"
-  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Track authentication status
 
-  // useEffect(() => {
-  //   // Here, you'd check if the user is already logged in (e.g., check auth token)
-  //   // If logged in, set isLoggedIn to true and setCurrentForm to "home"
-  // }, []);
+  const [currentView, setCurrentView] = useState("home"); // "login", "register", "home"
 
-  // const toggleForm = (formName: string) => {
-  //   setCurrentForm(formName);
-  // };
+  
 
-  // const handleLoginSuccess = () => {
-  //   // This function gets called when the user successfully logs in
-  //   setIsLoggedIn(true);
-  //   setCurrentForm("home");
-  // };
+  const handleLoginSuccess = (userData: any) => {
+    // Logic after successful login
+    setCurrentView("home");
+  };
 
-  return (
-    <div className="App">
-      {
-        // !isLoggedIn ?
-        // (
-        //   currentForm === "login" ?
-        //     <Login onFormSwitch={toggleForm} onLoginSuccess={handleLoginSuccess} /> :
-        //     <Register onFormSwitch={toggleForm}/>
-        // ) :
-        <HomePage />
-      }
-    </div>
-  );
+
+
+  const navigateTo = (view: string) => {
+    setCurrentView(view);
+  };;
+
+  // const showLogin = () => setCurrentView("login");
+  // const showRegister = () => setCurrentView("register");
+  // const showHome = () => setCurrentView("home");
+
+//   return (
+//     <div className="homepage-container">
+//         <div className="top-buttons">
+//             <button className="icon-button" onClick={/* Define your back function */}>
+//                 <FontAwesomeIcon icon={faArrowLeft} /> Back
+//             </button>
+//             <button className="icon-button" onClick={/* Define your undo function */}>
+//                 <FontAwesomeIcon icon={faUndo} /> Undo
+//             </button>
+//         </div>
+
+//         <div className="login-button">
+//             <button onClick={onNavigate}>
+//                 <FontAwesomeIcon icon={faSignInAlt} /> Go to Login
+//             </button>
+//         </div>
+
+//         {/* Rest of your HomePage content */}
+//     </div>
+// );
+
+return (
+  <div className="App">
+    {currentView === "home" && <HomePage onNavigate={() => navigateTo("login")} />}
+    {currentView === "login" && 
+      <Login 
+        onFormSwitch={navigateTo}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    }
+    {currentView === "register" && <Register onFormSwitch={navigateTo} />}
+  </div>
+);
+
+ 
 }
 
 export default App;

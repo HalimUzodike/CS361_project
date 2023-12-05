@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Inspect from './Inspect'; // Import the Inspect component
+import Inspect from './Inspect';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -8,51 +8,41 @@ type HomePageProps = {
 };
 
 type Book = {
+    isbn: string;
     title: string;
     author: string;
     description: string;
-    // Additional properties if needed
+    cover?: string; // Optional property for cover image
 };
 
 const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+    const [books, setBooks] = useState<Book[]>([]); // Store books
 
-    // Example books data
-    const books: Book[] = [
-        { title: 'Book 1', author: 'Author 1', description: 'Description 1' },
-        { title: 'Book 2', author: 'Author 2', description: 'Description 2' },
-        // ...other books
-    ];
-
-    const handleSearch = () => {
-        console.log("Searching for:", searchQuery);
-        // Implement the search logic or redirection
+    const handleSearch = async () => {
+        try {
+            const response = await fetch(`http://localhost:3923/cover_image?isbn=${searchQuery}`);
+            const data = await response.json();
+            if (data.url) {
+                const newBook = {
+                    isbn: searchQuery,
+                    title: 'Book Title', // Placeholder, replace with actual title if available
+                    author: 'Author Name', // Placeholder, replace with actual author if available
+                    description: 'Book Description', // Placeholder, replace with actual description if available
+                    cover: data.url,
+                };
+                setBooks([...books, newBook]); // Add the new book to the list
+            }
+        } catch (error) {
+            console.error("Error fetching book cover:", error);
+            // Handle errors (e.g., show error message)
+        }
     };
 
     const handleBookSelect = (book: Book) => {
         setSelectedBook(book);
     };
-
-    const instructions = () => {
-        return (
-            <div>
-                <h3>Features-------------</h3>
-                <ul>
-                    <li>Search for a book by ISBN</li>
-                    <li>Click on a book to inspect it</li>
-                    <li>Click the "Go to Login" button to go to the Login page</li>
-                </ul>
-                <h3>Instructions-------------</h3>
-                <ol>
-                    <li>Create a user account in order to use all features.</li>
-                    <li>Search for a book.</li>
-                    <li>Add the book to a list of favorites.</li>
-                </ol>
-            </div>
-        );
-    };
-
 
     return (
         <div>
@@ -68,13 +58,12 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                         placeholder="Enter Book ISBN"
                     />
                     <button onClick={handleSearch}>Search</button>
-    
-                    {/* Book list */}
                     <div>
                         <h2>Books</h2>
                         {books.map((book, index) => (
                             <div key={index} onClick={() => handleBookSelect(book)}>
                                 <p><strong>{book.title}</strong> - {book.author}</p>
+                                {book.cover && <img src={book.cover} alt={`Cover of ${book.title}`} />}
                             </div>
                         ))}
                     </div>
@@ -83,7 +72,6 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <button onClick={onNavigate}>
                 <FontAwesomeIcon icon={faSignInAlt} /> Go to Login
             </button>
-            {instructions()}
         </div>
     );
 };

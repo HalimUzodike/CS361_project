@@ -12,7 +12,8 @@ type Book = {
     title: string;
     author: string;
     description: string;
-    cover?: string; // Optional property for cover image
+    genre?: string; // Add genre to the Book type
+    cover?: string;
 };
 
 const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
@@ -22,23 +23,36 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
     const handleSearch = async () => {
         try {
-            const response = await fetch(`http://localhost:3923/cover_image?isbn=${searchQuery}`);
-            const data = await response.json();
-            if (data.url) {
-                const newBook = {
-                    isbn: searchQuery,
-                    title: 'Book Title', // Placeholder, replace with actual title if available
-                    author: 'Author Name', // Placeholder, replace with actual author if available
-                    description: 'Book Description', // Placeholder, replace with actual description if available
-                    cover: data.url,
-                };
-                setBooks([...books, newBook]); // Add the new book to the list
+            // Fetch book genre from Python microservice
+            const genreResponse = await fetch(`http://localhost:5000/get_genre/${searchQuery}`);
+            const genreData = await genreResponse.json();
+    
+            // Handle the scenario where the book is not found
+            if (genreResponse.status === 404) {
+                console.log('Book not found');
+                return; // Exit the function if no book is found
             }
+    
+            // Fetch cover image from the existing API
+            const coverResponse = await fetch(`http://localhost:3923/cover_image?isbn=${searchQuery}`);
+            const coverData = await coverResponse.json();
+    
+            const newBook = {
+                isbn: searchQuery,
+                title: 'Unknown Title', // Replace with actual title if available
+                author: 'Unknown Author', // Replace with actual author if available
+                description: 'No description available', // Replace with actual description if available
+                genre: genreData.genre || 'Unknown Genre',
+                cover: coverData.url || null,
+            };
+    
+            setBooks([...books, newBook]);
         } catch (error) {
-            console.error("Error fetching book cover:", error);
-            // Handle errors (e.g., show error message)
+            console.error("Error fetching book data:", error);
+            // Handle errors
         }
     };
+    
 
     const handleBookSelect = (book: Book) => {
         setSelectedBook(book);
@@ -59,13 +73,14 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                     />
                     <button onClick={handleSearch}>Search</button>
                     <div>
-                        <h2>Books</h2>
-                        {books.map((book, index) => (
-                            <div key={index} onClick={() => handleBookSelect(book)}>
-                                <p><strong>{book.title}</strong> - {book.author}</p>
-                                {book.cover && <img src={book.cover} alt={`Cover of ${book.title}`} />}
-                            </div>
-                        ))}
+                    <h2>Books</h2>
+                    {books.map((book, index) => (
+                        <div key={index} onClick={() => handleBookSelect(book)}>
+                            <p><strong>{book.title}</strong> by {book.author}</p>
+                            <p>Genre: {book.genre}</p>
+                            {book.cover && <img src={book.cover} alt={`Cover of ${book.title}`} />}
+                        </div>
+                    ))}
                     </div>
                 </div>
             )}
